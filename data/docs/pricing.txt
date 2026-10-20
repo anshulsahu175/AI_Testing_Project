@@ -1,0 +1,4 @@
+AcmeCloud offers three plans. The Free plan costs 0 dollars per month and includes 5 GB of storage.
+The Pro plan costs 12 dollars per month and includes 200 GB of storage and email support.
+The Business plan costs 40 dollars per month and includes 2 TB of storage, priority support and team sharing.
+Annual billing gives a 20 percent discount on all paid plans.

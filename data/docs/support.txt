@@ -1,0 +1,4 @@
+AcmeCloud support is available by email at support@acmecloud.example from Monday to Friday, 9 AM to 6 PM IST.
+Business plan customers get priority support with a response within 4 hours.
+To reset your password, click Forgot Password on the login page and follow the email link. The link expires after 30 minutes.
+Refunds are available within 14 days of purchase for paid plans.
