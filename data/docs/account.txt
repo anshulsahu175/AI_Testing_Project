@@ -1,0 +1,2 @@
+Two-factor authentication (2FA) can be turned on in Account Settings under Security. AcmeCloud supports authenticator apps for 2FA.
+Deleted files stay in Trash for 21 days. After that they are removed permanently.

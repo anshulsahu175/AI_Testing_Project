@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     bot_base_url: str = "http://127.0.0.1:8000"
     request_timeout: float = 30.0
     max_latency_ms: float = 10000.0
+    min_fact_coverage: float = 1.0
+    min_similarity: float = 0.15
 
 
 settings = Settings()

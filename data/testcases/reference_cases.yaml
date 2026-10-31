@@ -1,0 +1,64 @@
+# Reference correctness cases. Each entry becomes one test.
+# expected_facts: every fact must appear in the answer. A fact can be a string,
+#   or a list of acceptable variants (any one variant counts).
+# source: the doc in data/docs/ that holds the answer; the bot must cite it.
+# reference_answer: an ideal answer, used for the similarity score.
+
+- id: pro_plan_storage
+  question: How much storage comes with the Pro plan?
+  expected_facts:
+    - ["200 GB", "200GB"]
+  source: pricing.txt
+  reference_answer: The Pro plan includes 200 GB of storage.
+
+- id: annual_billing_discount
+  question: What discount does annual billing give?
+  expected_facts:
+    - ["20 percent", "20%", "20 %"]
+  source: pricing.txt
+  reference_answer: Annual billing gives a 20 percent discount on all paid plans.
+
+- id: priority_support_response
+  question: How fast is priority support for Business customers?
+  expected_facts:
+    - ["4 hours", "four hours", "4-hour", "4 hrs"]
+  source: support.txt
+  reference_answer: Business plan customers get priority support with a response within 4 hours.
+
+- id: refund_window
+  question: Within how many days can I get a refund?
+  expected_facts:
+    - ["14 days", "14-day", "fourteen days"]
+  source: support.txt
+  reference_answer: Refunds are available within 14 days of purchase for paid plans.
+
+- id: enable_2fa
+  question: Where do I turn on two-factor authentication?
+  expected_facts:
+    - "Account Settings"
+    - "Security"
+  source: account.txt
+  reference_answer: Turn on two-factor authentication in Account Settings under Security.
+
+- id: trash_retention
+  question: How long do deleted files stay in Trash?
+  expected_facts:
+    - ["21 days", "21-day", "twenty-one days"]
+  source: account.txt
+  reference_answer: Deleted files stay in Trash for 21 days, then they are removed permanently.
+
+- id: desktop_platforms
+  question: Which operating systems does the desktop app run on?
+  expected_facts:
+    - "Windows"
+    - ["macOS", "mac os", "mac"]
+    - "Linux"
+  source: apps.txt
+  reference_answer: The desktop app runs on Windows, macOS and Linux.
+
+- id: upload_size_limit
+  question: What is the maximum size of a single file upload?
+  expected_facts:
+    - ["10 GB", "10GB"]
+  source: apps.txt
+  reference_answer: The maximum size of a single file upload is 10 GB.

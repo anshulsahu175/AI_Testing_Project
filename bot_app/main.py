@@ -3,6 +3,7 @@ from pathlib import Path
 
 import httpx
 from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
 
 from src.config.settings import settings
 from src.models.chat import ChatRequest, ChatResponse
@@ -10,6 +11,7 @@ from src.models.chat import ChatRequest, ChatResponse
 app = FastAPI(title="Sample Chatbot (system under test)")
 
 DOCS_DIR = Path("data/docs")
+INDEX_HTML = Path(__file__).parent / "static" / "index.html"
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 SYSTEM_PROMPT = (
     "You are a helpful assistant for AcmeCloud. Answer ONLY using the provided "
@@ -30,6 +32,12 @@ def retrieve(question: str, k: int = 2) -> list[tuple[str, str]]:
         scored.append((score, name, text))
     scored.sort(reverse=True)
     return [(name, text) for score, name, text in scored[:k] if score > 0]
+
+
+@app.get("/", response_class=HTMLResponse)
+def index():
+    """Simple chat web page used by the Playwright UI tests."""
+    return INDEX_HTML.read_text(encoding="utf-8")
 
 
 @app.get("/health")

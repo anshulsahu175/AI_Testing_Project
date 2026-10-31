@@ -1,0 +1,3 @@
+The AcmeCloud desktop app runs on Windows, macOS and Linux. Mobile apps are available for Android and iOS.
+The maximum size of a single file upload is 10 GB.
+Shared links can be protected with a password and an expiry date.

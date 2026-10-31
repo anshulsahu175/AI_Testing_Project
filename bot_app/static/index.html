@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AcmeCloud Assistant</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; background: #fafafa; color: #222; }
+    h1 { font-size: 1.4rem; }
+    #chat-log { list-style: none; padding: 0; min-height: 200px; }
+    #chat-log li { padding: .6rem .8rem; border-radius: 8px; margin: .4rem 0; white-space: pre-wrap; }
+    .user { background: #dbeafe; text-align: right; }
+    .bot { background: #fff; border: 1px solid #ddd; }
+    .sources { display: block; font-size: .75rem; color: #666; margin-top: .3rem; }
+    form { display: flex; gap: .5rem; }
+    input { flex: 1; padding: .6rem; font-size: 1rem; }
+    button { padding: .6rem 1rem; font-size: 1rem; }
+    #status { color: #666; min-height: 1.2rem; }
+    #error { color: #b91c1c; }
+  </style>
+</head>
+<body>
+  <h1>AcmeCloud Assistant</h1>
+  <ul id="chat-log" data-testid="chat-log"></ul>
+  <p id="status" data-testid="status"></p>
+  <p id="error" data-testid="error-message" hidden></p>
+  <form id="chat-form" data-testid="chat-form">
+    <input id="message" data-testid="message-input" placeholder="Ask a question..." maxlength="2000" autocomplete="off">
+    <button id="send" data-testid="send-button" type="submit" disabled>Send</button>
+  </form>
+  <script>
+    const log = document.getElementById("chat-log");
+    const input = document.getElementById("message");
+    const send = document.getElementById("send");
+    const status = document.getElementById("status");
+    const error = document.getElementById("error");
+    const sessionId = crypto.randomUUID();
+    let busy = false;
+
+    function updateButton() { send.disabled = busy || input.value.trim() === ""; }
+
+    function addMessage(text, role, sources) {
+      const li = document.createElement("li");
+      li.className = role;
+      li.dataset.testid = role === "user" ? "user-message" : "bot-message";
+      const body = document.createElement("span");
+      body.dataset.testid = "message-text";
+      body.textContent = text;
+      li.appendChild(body);
+      if (sources) {
+        const src = document.createElement("small");
+        src.className = "sources";
+        src.dataset.testid = "message-sources";
+        src.textContent = sources.join(", ");
+        li.appendChild(src);
+      }
+      log.appendChild(li);
+    }
+
+    input.addEventListener("input", updateButton);
+
+    document.getElementById("chat-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const message = input.value.trim();
+      if (!message || busy) return;
+      addMessage(message, "user");
+      input.value = "";
+      busy = true;
+      updateButton();
+      error.hidden = true;
+      status.textContent = "Thinking...";
+      try {
+        const response = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message, session_id: sessionId }),
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        addMessage(data.answer, "bot", data.sources);
+      } catch (err) {
+        error.textContent = `Something went wrong: ${err.message}`;
+        error.hidden = false;
+      } finally {
+        busy = false;
+        status.textContent = "";
+        updateButton();
+      }
+    });
+  </script>
+</body>
+</html>
