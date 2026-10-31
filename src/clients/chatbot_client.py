@@ -33,6 +33,12 @@ class ChatbotClient:
         log.info("POST /chat payload=%s", payload)
         return self._client.post("/chat", json=payload)
 
+    @_retry_network
+    def request_raw(self, method: str, path: str, **kwargs) -> httpx.Response:
+        """Send any HTTP request as-is. Used for negative tests (wrong method, bad body)."""
+        log.info("%s %s", method, path)
+        return self._client.request(method, path, **kwargs)
+
     def send(self, message: str, session_id: str | None = None) -> ChatResponse:
         """Send a valid message and return a validated ChatResponse."""
         request = ChatRequest(message=message, session_id=session_id)

@@ -1,0 +1,45 @@
+# Data-driven API cases. Each entry becomes one test.
+# expected_keywords: keep them short and flexible, LLM wording varies.
+# match: "any" (default) = at least one keyword, "all" = every keyword.
+
+- id: pro_plan_price
+  question: How much does the Pro plan cost?
+  expected_keywords: ["12"]
+
+- id: free_plan_storage
+  question: How much storage does the Free plan include?
+  expected_keywords: ["5 GB", "5GB"]
+
+- id: business_plan_price
+  question: What is the monthly price of the Business plan?
+  expected_keywords: ["40"]
+
+- id: annual_discount
+  question: What discount do I get with annual billing?
+  expected_keywords: ["20"]
+
+- id: support_email
+  question: What is the support email address?
+  expected_keywords: ["support@acmecloud.example"]
+  regex: '[\w.+-]+@[\w-]+\.[\w.]+'
+
+- id: password_reset_expiry
+  question: How long is the password reset link valid?
+  expected_keywords: ["30 minutes", "30 min"]
+
+- id: refund_window
+  question: Within how many days can I get a refund?
+  expected_keywords: ["14"]
+
+- id: out_of_scope_question
+  question: What is the capital of France?
+  expected_keywords:
+    - "don't know"
+    - "do not know"
+    - "not mentioned"
+    - "not provided"
+    - "no information"
+    - "unable"
+    - "cannot"
+    - "can't"
+  forbidden_words: ["Paris"]
