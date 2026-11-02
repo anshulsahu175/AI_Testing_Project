@@ -43,3 +43,7 @@
     - "cannot"
     - "can't"
   forbidden_words: ["Paris"]
+
+- id: cost_of_work
+  question: How is the cost of work calculated?
+  expected_keywords: ["10 rupee", "₹10", "rs 10", "rs. 10"]

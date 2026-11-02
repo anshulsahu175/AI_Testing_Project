@@ -2,3 +2,7 @@ AcmeCloud offers three plans. The Free plan costs 0 dollars per month and includ
 The Pro plan costs 12 dollars per month and includes 200 GB of storage and email support.
 The Business plan costs 40 dollars per month and includes 2 TB of storage, priority support and team sharing.
 Annual billing gives a 20 percent discount on all paid plans.
+Work cost calculation
+The cost of work is calculated per minute.
+The rate is 10 Rupees for 1 min of work.
+Example: 30 minutes of work will cost 300 Rupees.
