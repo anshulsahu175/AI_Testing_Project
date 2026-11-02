@@ -6,7 +6,9 @@ import httpx
 import pytest
 
 from src.clients.chatbot_client import ChatbotClient
+from src.clients.judge_client import GeminiClient
 from src.config.settings import settings
+from src.evaluators.judge import Judge
 from src.models.chat import ChatResponse
 
 BOT_STARTUP_SECONDS = 30
@@ -60,3 +62,11 @@ def client(bot_server):
 def pricing_response(client) -> ChatResponse:
     """One real chat call reused by schema tests, to save free-tier quota."""
     return client.send("How much does the Pro plan cost?", session_id="schema-test")
+
+
+@pytest.fixture(scope="session")
+def judge():
+    """LLM judge backed by Gemini. Results are cached on disk in .cache/judge."""
+    gemini = GeminiClient()
+    yield Judge(gemini)
+    gemini.close()

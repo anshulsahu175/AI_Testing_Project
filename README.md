@@ -317,7 +317,7 @@ test-results/
 GROQ_API_KEY=your_groq_key_here
 GROQ_MODEL=llama-3.1-8b-instant
 GEMINI_API_KEY=your_gemini_key_here
-GEMINI_MODEL=gemini-2.5-flash
+GEMINI_MODEL=gemini-3.1-flash-lite
 BOT_BASE_URL=http://127.0.0.1:8000
 REQUEST_TIMEOUT=30
 ```
@@ -347,7 +347,7 @@ class Settings(BaseSettings):
     groq_api_key: str
     groq_model: str = "llama-3.1-8b-instant"
     gemini_api_key: str
-    gemini_model: str = "gemini-2.5-flash"
+    gemini_model: str = "gemini-3.1-flash-lite"
     bot_base_url: str = "http://127.0.0.1:8000"
     request_timeout: float = 30.0
 
