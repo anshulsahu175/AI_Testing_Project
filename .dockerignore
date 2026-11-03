@@ -1,0 +1,12 @@
+.env
+.venv/
+.git/
+.github/
+.cache/
+.pytest_cache/
+__pycache__/
+*.pyc
+reports/
+test-results/
+.idea/
+.vscode/

@@ -1,0 +1,27 @@
+# docker compose up --build --abort-on-container-exit --exit-code-from tests
+# Runs the bot in one container and the test suite in another (mock mode, no API keys).
+services:
+  bot:
+    build: .
+    command: ["uvicorn", "bot_app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      USE_MOCKS: "true"
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8000/health').raise_for_status()"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  tests:
+    build: .
+    depends_on:
+      bot:
+        condition: service_healthy
+    environment:
+      USE_MOCKS: "true"
+      BOT_BASE_URL: http://bot:8000
+      BOT_AUTOSTART: "false"
+    volumes:
+      - ./reports:/app/reports

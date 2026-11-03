@@ -8,6 +8,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 
 from src.config.settings import settings
+from src.mocks.mock_bot import mock_answer
 from src.models.chat import ChatRequest, ChatResponse
 
 app = FastAPI(title="Sample Chatbot (system under test)")
@@ -94,7 +95,7 @@ def chat(req: ChatRequest):
             {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {req.message}"},
         ],
     }
-    answer = call_groq(payload)
+    answer = mock_answer(req.message, history) if settings.use_mocks else call_groq(payload)
 
     if req.session_id:
         with HISTORY_LOCK:

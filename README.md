@@ -1,5 +1,7 @@
 # AI Chatbot Testing Automation Framework
 
+[![CI](https://github.com/anshulsahu175/AI_Testing_Project/actions/workflows/ci.yml/badge.svg)](https://github.com/anshulsahu175/AI_Testing_Project/actions/workflows/ci.yml)
+
 A free, 6-day learning project: build a modular, production-style framework that automatically tests and evaluates an AI chatbot using **Python, pytest, Playwright, HTTPX, Pydantic, Docker, Git and GitHub Actions**.
 
 - **Chatbot under test:** a small FastAPI chatbot powered by **Groq** (free API key)
@@ -7,6 +9,80 @@ A free, 6-day learning project: build a modular, production-style framework that
 - **Cost:** 0. No paid service anywhere in this project.
 
 > Note: Groq (groq.com, fast inference for open-source models) is different from Grok (xAI). This project uses **Groq**.
+
+---
+
+## Quick Start and Usage
+
+**Status:** all 6 days are built. 111 tests: unit, API, reference correctness, LLM-as-a-Judge,
+safety and prompt injection, multi-turn memory and Playwright UI.
+
+### Setup
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate             # Windows (Mac/Linux: source .venv/bin/activate)
+pip install -r requirements.txt
+playwright install chromium
+copy .env.example .env             # Mac/Linux: cp .env.example .env, then add your two keys
+```
+
+### Run the tests
+
+The bot starts automatically for the test session (or reuses one already running on port 8000).
+
+| Command | What it runs |
+|---|---|
+| `pytest` | Everything against the real Groq bot and Gemini judge |
+| `pytest -m unit` | Fast tests, no network |
+| `pytest -m "api or multi_turn"` | Bot behaviour only, no judge quota used |
+| `pytest -m quality` | Reference correctness and LLM-as-a-Judge (uses Gemini quota) |
+| `pytest -m safety` | Prompt injection and unsafe-request suites |
+| `pytest -n 2` | Two parallel workers (each starts its own bot on port 8000 / 8001) |
+
+Every run writes a self-contained HTML report to `reports/report.html`.
+
+### Mock mode (no API keys, no quota)
+
+Set `USE_MOCKS=true` to replace Groq with canned answers (`data/mocks/bot_answers.yaml`) and
+Gemini with an offline rule-based judge (`src/mocks/mock_judge.py`). CI and Docker use this mode.
+Mock mode tests the framework itself; only real mode tells you how good the bot is.
+
+```bash
+USE_MOCKS=true pytest -n 2           # PowerShell: $env:USE_MOCKS="true"; pytest -n 2
+```
+
+### Docker
+
+```bash
+docker build -t chatbot-tests . && docker run --rm chatbot-tests            # one container
+docker compose up --build --abort-on-container-exit --exit-code-from tests    # bot + tests containers
+```
+
+### CI/CD (GitHub Actions)
+
+- `.github/workflows/ci.yml` runs on every push and pull request: the full suite in mock mode,
+  plus the docker compose run. The HTML report is uploaded as a build artifact.
+- `.github/workflows/real-models.yml` is manual (**Actions > Real models > Run workflow**) and uses
+  the real models. Add `GROQ_API_KEY` and `GEMINI_API_KEY` under
+  **Settings > Secrets and variables > Actions** first.
+
+### Main settings (`.env`)
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `GROQ_MODEL` | `openai/gpt-oss-20b` | Model behind the bot |
+| `GEMINI_MODEL` | `gemini-3.1-flash-lite` | Judge model (higher free quota than the larger Flash models) |
+| `JUDGE_PASS_THRESHOLD` | `4.0` | Minimum average judge score (1 to 5) |
+| `JUDGE_DELAY_SECONDS` | `4` | Pause between real judge calls (rate limits) |
+| `USE_MOCKS` | `false` | Mock bot and mock judge; API keys not needed |
+| `BOT_AUTOSTART` | `true` | `false` = use the bot at `BOT_BASE_URL` as it is (docker compose) |
+
+### Findings
+
+The injection suite found three weaknesses in the sample bot (instruction override, system prompt
+leak, Base64-encoded instructions). They are documented in [FINDINGS.md](FINDINGS.md) and tracked
+as `xfail` tests through `known_issue` in `data/testcases/injection.yaml`.
 
 ---
 
@@ -66,7 +142,7 @@ It also tests the chatbot's **web UI** with Playwright, and runs everything in *
  +-----------------+   +----------------+      +---------------+
 ```
 
-Why two different providers? A model tends to rate its own style higher. Using Groq (open-source Llama) as the bot and Gemini as the judge reduces this **self-preference bias**.
+Why two different providers? A model tends to rate its own style higher. Using Groq (open-weight `gpt-oss-20b`) as the bot and Gemini as the judge reduces this **self-preference bias**.
 
 ---
 
@@ -76,7 +152,7 @@ Why two different providers? A model tends to rate its own style higher. Using G
 
 | Item | Version | Why we use it |
 |---|---|---|
-| **Python** | 3.11 or newer (3.12 is fine) | Base language. Modern type hints and fast execution; Pydantic v2 expects it. |
+| **Python** | 3.11 or newer (CI and Docker use 3.14) | Base language. Modern type hints and fast execution; Pydantic v2 expects it. |
 | **pip + venv** | Comes with Python | Installs libraries into an isolated environment so projects do not conflict. |
 | **Git** | 2.40+ | Version control. You commit daily and it triggers CI. |
 | **GitHub account** | Free | Hosts the code and runs GitHub Actions. |
@@ -136,32 +212,33 @@ Free tiers have **rate limits** (requests per minute and per day) that **change 
 ## 5. Folder Structure
 
 ```
-chatbot-eval-framework/
+AI_Testing_Project/
 ├── bot_app/                 # sample chatbot (system under test)
-│   ├── __init__.py
-│   └── main.py
+│   ├── main.py              # FastAPI + Groq, retrieval, session memory, 429 retry
+│   └── static/index.html    # chat web page for the UI tests
 ├── src/
-│   ├── __init__.py
-│   ├── config/              # Pydantic settings
-│   ├── clients/             # chatbot client, judge client (HTTPX)
-│   ├── models/              # Pydantic schemas
-│   ├── evaluators/          # rule-based, reference, LLM judge
+│   ├── config/              # Pydantic settings (.env)
+│   ├── clients/             # chatbot client, Gemini judge client, multi-turn Conversation
+│   ├── models/              # Pydantic schemas: chat, test cases, judge results
+│   ├── evaluators/          # rules, reference, safety, LLM judge, prompt templates
+│   ├── mocks/               # mock bot and mock judge (USE_MOCKS=true)
 │   ├── pages/               # Playwright page objects
-│   └── utils/               # logger, cache, helpers
-├── scripts/                 # smoke tests and helper scripts
+│   └── utils/               # logger, YAML/doc loaders, disk cache
+├── scripts/                 # smoke test
 ├── tests/
-│   ├── api/  quality/  safety/  multi_turn/  ui/
+│   ├── unit/  api/  quality/  safety/  multi_turn/  ui/
 ├── data/
-│   ├── docs/                # reference documents the bot uses
-│   └── testcases/           # YAML test cases
-├── reports/
-├── .github/workflows/ci.yml
+│   ├── docs/                # reference documents the bot answers from
+│   ├── testcases/           # YAML test cases (api, reference, injection, safety, multi_turn)
+│   └── mocks/               # canned answers for the mock bot
+├── reports/                 # HTML report (git-ignored)
+├── .github/workflows/       # ci.yml (mock, every push), real-models.yml (manual)
 ├── Dockerfile
 ├── docker-compose.yml
+├── FINDINGS.md              # security findings from the injection suite
 ├── pytest.ini
-├── requirements.txt
+├── requirements.txt         # pinned versions
 ├── .env.example
-├── .gitignore
 └── README.md
 ```
 
@@ -775,4 +852,4 @@ Tip: paste this whole README after the prompt so the AI knows your exact files a
 
 ---
 
-**Next step:** finish Day 1, then ask your instructor AI for **Day 2** using the prompt in Section 9.
+**Status:** Days 1 to 6 are complete. Ideas for next steps: fix the findings in FINDINGS.md and turn their tests from `xfail` into normal passing tests, add more YAML cases, or try another bot model.

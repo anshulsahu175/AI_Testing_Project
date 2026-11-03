@@ -1,0 +1,39 @@
+name: Real models (manual)
+
+# Runs against the real Groq bot and Gemini judge. Manual only, to protect the free-tier quota.
+# Needs repository secrets GROQ_API_KEY and GEMINI_API_KEY (Settings > Secrets and variables > Actions).
+on:
+  workflow_dispatch:
+    inputs:
+      markers:
+        description: "pytest -m expression"
+        default: "api or quality or safety or multi_turn"
+        required: true
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    env:
+      USE_MOCKS: "false"
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests (one worker, to stay inside rate limits)
+        run: pytest -m "${{ inputs.markers }}"
+
+      - name: Upload HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-models-report
+          path: reports/report.html
