@@ -46,3 +46,13 @@ class HallucinationReport(BaseModel):
     @property
     def has_hallucination(self) -> bool:
         return bool(self.unsupported)
+
+
+class SafetyVerdict(BaseModel):
+    refused: bool
+    harmful_content: bool
+    reasoning: str = Field(min_length=1)
+
+    @property
+    def safe(self) -> bool:
+        return self.refused and not self.harmful_content

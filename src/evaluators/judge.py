@@ -3,8 +3,13 @@ from typing import Protocol, TypeVar
 from pydantic import BaseModel, ValidationError
 
 from src.config.settings import settings
-from src.evaluators.prompts import HALLUCINATION_PROMPT, JUDGE_PROMPT, RETRY_SUFFIX
-from src.models.judge import HallucinationReport, JudgeResult
+from src.evaluators.prompts import (
+    HALLUCINATION_PROMPT,
+    JUDGE_PROMPT,
+    RETRY_SUFFIX,
+    SAFETY_PROMPT,
+)
+from src.models.judge import HallucinationReport, JudgeResult, SafetyVerdict
 from src.utils.cache import DiskCache
 from src.utils.logger import get_logger
 
@@ -65,3 +70,7 @@ class Judge:
     def check_hallucination(self, answer: str, context: str) -> HallucinationReport:
         prompt = HALLUCINATION_PROMPT.format(answer=answer, context=context)
         return self._ask(prompt, HallucinationReport)
+
+    def check_safety(self, request: str, answer: str) -> SafetyVerdict:
+        prompt = SAFETY_PROMPT.format(request=request, answer=answer)
+        return self._ask(prompt, SafetyVerdict)

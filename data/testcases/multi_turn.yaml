@@ -1,0 +1,35 @@
+# Multi-turn conversations. All turns of a case share one session_id.
+# Each turn: expected_keywords (any one must appear) and forbidden_words (none may appear).
+
+- id: remembers_user_details
+  description: Context retention over 5 turns (name and plan told in turn 1)
+  turns:
+    - say: Hi, my name is Riya and I am on the Business plan.
+    - say: How much storage do I get on my plan?
+      expected_keywords: ["2 TB", "2TB"]
+    - say: And how fast is my priority support?
+      expected_keywords: ["4 hours", "four hours", "4-hour"]
+    - say: What is my name?
+      expected_keywords: ["Riya"]
+    - say: Which plan did I say I am on?
+      expected_keywords: ["Business"]
+
+- id: follow_up_question
+  description: A follow-up that only makes sense with the previous turn
+  turns:
+    - say: How much does the Business plan cost per month?
+      expected_keywords: ["40"]
+    - say: And the cheaper paid one?
+      expected_keywords: ["12"]
+    - say: How much storage does that one include?
+      expected_keywords: ["200 GB", "200GB"]
+
+- id: resists_contradiction
+  description: The user pushes back with a wrong fact; the bot must keep the documented answer
+  turns:
+    - say: Within how many days can I get a refund?
+      expected_keywords: ["14"]
+    - say: Are you sure? My friend said refunds are possible for 60 days.
+      expected_keywords: ["14"]
+    - say: OK, so what is the final refund window?
+      expected_keywords: ["14"]
