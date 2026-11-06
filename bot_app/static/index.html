@@ -34,7 +34,8 @@
     const send = document.getElementById("send");
     const status = document.getElementById("status");
     const error = document.getElementById("error");
-    const sessionId = crypto.randomUUID();
+    // getRandomValues also works on plain http hosts like http://bot:8000; randomUUID does not.
+    const sessionId = Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, "0")).join("");
     let busy = false;
 
     function updateButton() { send.disabled = busy || input.value.trim() === ""; }

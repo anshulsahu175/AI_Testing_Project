@@ -78,6 +78,16 @@ docker compose up --build --abort-on-container-exit --exit-code-from tests    # 
 | `USE_MOCKS` | `false` | Mock bot and mock judge; API keys not needed |
 | `BOT_AUTOSTART` | `true` | `false` = use the bot at `BOT_BASE_URL` as it is (docker compose) |
 
+### Screenshots
+
+The chat page that the Playwright UI tests drive:
+
+![Chat web page answering two questions](docs/images/chat-ui.png)
+
+The self-contained HTML report written by every run (mock mode shown):
+
+![Summary section of the pytest HTML report](docs/images/html-report.png)
+
 ### Findings
 
 The injection suite found three weaknesses in the sample bot (instruction override, system prompt
